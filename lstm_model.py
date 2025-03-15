@@ -243,10 +243,7 @@ predicted_stock_price = model.predict(X_test)
 predicted_stock_price = scaler.inverse_transform(predicted_stock_price)
 
 
-# We will visualize the results of the LSTM model
-# We will compare the real stock price with the predicted stock price
-# We will plot the real stock price in red and the predicted stock price in blue
-
+# We will visualize the results of the LSTM model and compare the real stock price with the predicted stock price
 
 plt.figure(figsize=(10,6))
 plt.plot(test_set, color='r',label='Real Google Stock Price')
