@@ -14,7 +14,7 @@ from keras.layers import Dropout
 import statsmodels.api as sm
 from statsmodels.tsa.seasonal import seasonal_decompose
 
-import matplotlib; matplotlib.use('Qt5Agg')
+#import matplotlib; matplotlib.use('Qt5Agg')
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -73,10 +73,13 @@ data["date"][1]
 # We can see that the date is in the format 'YYYY-MM-DD'
 
 # Preliminary analysis of the data to understand the trend
+plt.figure(figsize=(12, 6))
 plt.plot(data["date"], data["close"])
 plt.title("Google Stock Price")
+plt.grid()
 plt.xlabel("Date")
 plt.ylabel("Stock Price")
+plt.savefig("Google_Stock_Price.png")
 plt.show()
 
 # We can see that the stock price has been increasing over the years
@@ -145,7 +148,6 @@ def ts_decompose(data_series, model="additive", stationary=False, save=False):
 
     axes[3].plot(result.resid, 'r', label='Residuals & Mean: ' + str(round(result.resid.mean(), 4)))
     axes[3].legend(loc='upper left')
-    plt.show(block=True)
 
     if save:
         plt.savefig("Stl_decomposition.png")
@@ -153,6 +155,7 @@ def ts_decompose(data_series, model="additive", stationary=False, save=False):
 
     if stationary:
         is_stationary(data_series)
+    plt.show(block=True)
 
 ts_decompose(time_data_close, save=True)
 
@@ -208,42 +211,21 @@ X_test = np.reshape(X_test, (X_test.shape[0],X_test.shape[1],1))
 # LSTM Model
 # We will create the LSTM model
 
-#
-# model = Sequential()
-# model.add(LSTM(units=100, return_sequences=True, input_shape=(X_train.shape[1], 1)))
-# model.add(Dropout(0.2))
-# model.add(LSTM(units=100, return_sequences=True))
-# model.add(Dropout(0.2))
-# model.add(LSTM(units=100, return_sequences=True))
-# model.add(Dropout(0.2))
-# model.add(LSTM(units=50, return_sequences=False))
-# model.add(Dropout(0.2))
-# model.add(Dense(units = 25))
-# model.add(Dense(units=1))
-# model.compile(optimizer='adam', loss='mean_squared_error')
-# model.summary()
-
 # The LSTM architecture
 Model = Sequential()
-# First LSTM layer with Dropout regularisation
+
 Model.add(LSTM(units = 100, return_sequences = True, input_shape = (X_train.shape[1],1)))
 Model.add(Dropout(0.2))
-# Second LSTM layer
-Model.add(LSTM(units = 100, return_sequences = True))
-Model.add(Dropout(0.2))
-# Third LSTM layer
-Model.add(LSTM(units = 100, return_sequences = True))
-Model.add(Dropout(0.2))
-# Fourth LSTM layer
-##add 4th lstm layer
-#Model.add(layers.LSTM(units = 100))
-#Model.add(layers.Dropout(rate = 0.2))
 
-Model.add(layers.LSTM(units = 100, return_sequences = False))
-Model.add(layers.Dropout(rate = 0.2))
-Model.add(layers.Dense(units = 25))
-Model.add(layers.Dense(units = 1))
-# The output layer
+Model.add(LSTM(units = 100, return_sequences = True))
+Model.add(Dropout(0.2))
+
+Model.add(LSTM(units = 100, return_sequences = True))
+Model.add(Dropout(0.2))
+
+Model.add(LSTM(units = 100, return_sequences = False))
+Model.add(Dropout(rate = 0.2))
+Model.add(Dense(units = 25))
 Model.add(Dense(units = 1))
 
 Model.summary()
@@ -283,7 +265,7 @@ plt.xlabel('Time')
 plt.ylabel('Google Stock Price')
 plt.grid(True)
 plt.legend()
+plt.savefig('stock_price_prediction.png')
 plt.show()
 
-plt.savefig('stock_price_prediction.png')
 
