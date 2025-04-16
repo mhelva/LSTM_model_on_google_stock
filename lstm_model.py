@@ -127,7 +127,7 @@ def is_stationary(data_series):
 
 is_stationary(time_data_close)
 
-def ts_decompose(data_series, model="additive", stationary=False):
+def ts_decompose(data_series, model="additive", stationary=False, save=False):
     result = seasonal_decompose(data_series, model=model)
     fig, axes = plt.subplots(4, 1, sharex=True, sharey=False)
     fig.set_figheight(10)
@@ -147,10 +147,14 @@ def ts_decompose(data_series, model="additive", stationary=False):
     axes[3].legend(loc='upper left')
     plt.show(block=True)
 
+    if save:
+        plt.savefig("Stl_decomposition.png")
+
+
     if stationary:
         is_stationary(data_series)
 
-ts_decompose(time_data_close)
+ts_decompose(time_data_close, save=True)
 
 # train-test split
 # We will split the data into training and testing data
@@ -204,27 +208,54 @@ X_test = np.reshape(X_test, (X_test.shape[0],X_test.shape[1],1))
 # LSTM Model
 # We will create the LSTM model
 
+#
+# model = Sequential()
+# model.add(LSTM(units=100, return_sequences=True, input_shape=(X_train.shape[1], 1)))
+# model.add(Dropout(0.2))
+# model.add(LSTM(units=100, return_sequences=True))
+# model.add(Dropout(0.2))
+# model.add(LSTM(units=100, return_sequences=True))
+# model.add(Dropout(0.2))
+# model.add(LSTM(units=50, return_sequences=False))
+# model.add(Dropout(0.2))
+# model.add(Dense(units = 25))
+# model.add(Dense(units=1))
+# model.compile(optimizer='adam', loss='mean_squared_error')
+# model.summary()
 
-model = Sequential()
-model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], 1)))
-model.add(Dropout(0.2))
-model.add(LSTM(units=50, return_sequences=True))
-model.add(Dropout(0.2))
-model.add(LSTM(units=50))
-model.add(Dropout(0.2))
-model.add(Dense(units=1))
-model.compile(optimizer='adam', loss='mean_squared_error')
-model.summary()
+# The LSTM architecture
+Model = Sequential()
+# First LSTM layer with Dropout regularisation
+Model.add(LSTM(units = 100, return_sequences = True, input_shape = (X_train.shape[1],1)))
+Model.add(Dropout(0.2))
+# Second LSTM layer
+Model.add(LSTM(units = 100, return_sequences = True))
+Model.add(Dropout(0.2))
+# Third LSTM layer
+Model.add(LSTM(units = 100, return_sequences = True))
+Model.add(Dropout(0.2))
+# Fourth LSTM layer
+##add 4th lstm layer
+#Model.add(layers.LSTM(units = 100))
+#Model.add(layers.Dropout(rate = 0.2))
 
+Model.add(layers.LSTM(units = 100, return_sequences = False))
+Model.add(layers.Dropout(rate = 0.2))
+Model.add(layers.Dense(units = 25))
+Model.add(layers.Dense(units = 1))
+# The output layer
+Model.add(Dense(units = 1))
 
-model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
+Model.summary()
+
+Model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
 
 # We will train the LSTM model
 
 epochs = 20
 batch_size = 32
 
-history = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
+history = Model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
 
 # Training loss
 # We will visualize the training loss
@@ -234,12 +265,11 @@ epochs = range(len(loss))
 plt.plot(epochs, loss, 'r', label='Training loss')
 plt.title('Training loss', size=15, weight='bold')
 plt.legend(loc=0)
-plt.figure()
 plt.show()
 
 # Predictions
 
-predicted_stock_price = model.predict(X_test)
+predicted_stock_price = Model.predict(X_test)
 predicted_stock_price = scaler.inverse_transform(predicted_stock_price)
 
 
